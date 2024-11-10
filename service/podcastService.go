@@ -722,8 +722,8 @@ func makeQuery(url string) ([]byte, error) {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
-	// Set headers to mimic curl
-	req.Header.Set("User-Agent", "curl/7.64.1")
+	// Set headers to mimic apple podcast app
+	req.Header.Set("User-Agent", "AppleCoreMedia/1.0.0.22B82 (iPhone; U; CPU OS 18_1 like Mac OS X; en_us)")
 	req.Header.Set("Accept", "*/*")
 	// Some feeds might require these additional headers
 	req.Header.Set("Accept-Encoding", "gzip, deflate")
