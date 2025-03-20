@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -15,6 +14,7 @@ import (
 	"github.com/akhilrex/podgrab/controllers"
 	"github.com/akhilrex/podgrab/db"
 	"github.com/akhilrex/podgrab/service"
+	"github.com/charmbracelet/log"
 	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"
 	"github.com/jasonlvhit/gocron"
@@ -32,7 +32,7 @@ func main() {
 	var err error
 	db.DB, err = db.Init()
 	if err != nil {
-		fmt.Println("statuse: ", err)
+		log.Error("Failed to initialize datbase", "error", err)
 	} else {
 		db.Migrate()
 	}
@@ -52,7 +52,6 @@ func main() {
 			return result
 		},
 		"removeStartingSlash": func(raw string) string {
-			fmt.Println(raw)
 			if string(raw[0]) == "/" {
 				return raw
 			}
@@ -251,7 +250,5 @@ func intiCron() {
 }
 
 func assetEnv() {
-	log.Println("Config Dir: ", os.Getenv("CONFIG"))
-	log.Println("Assets Dir: ", os.Getenv("DATA"))
-	log.Println("Check Frequency (mins): ", os.Getenv("CHECK_FREQUENCY"))
+	log.Info("Envs", "config_dir", os.Getenv("CONFIG"), "asset_dir", os.Getenv("DATA"), "check_freq_minutes", os.Getenv("CHECK_FREQUENCY"))
 }

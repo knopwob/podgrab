@@ -1,28 +1,28 @@
 package db
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"path"
+
+	"github.com/charmbracelet/log"
 
 	"gorm.io/driver/sqlite"
 
 	"gorm.io/gorm"
 )
 
-//DB is
+// DB is
 var DB *gorm.DB
 
-//Init is used to Initialize Database
+// Init is used to Initialize Database
 func Init() (*gorm.DB, error) {
 	// github.com/mattn/go-sqlite3
 	configPath := os.Getenv("CONFIG")
 	dbPath := path.Join(configPath, "podgrab.db")
-	log.Println(dbPath)
+	log.WithPrefix("DB").Print("Opening database", "path", dbPath)
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		fmt.Println("db err: ", err)
+		log.WithPrefix("DB").Error("db err: ", err)
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func Init() (*gorm.DB, error) {
 	return DB, nil
 }
 
-//Migrate Database
+// Migrate Database
 func Migrate() {
 	DB.AutoMigrate(&Podcast{}, &PodcastItem{}, &Setting{}, &Migration{}, &JobLock{}, &Tag{})
 	RunMigrations()

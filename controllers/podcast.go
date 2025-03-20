@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/akhilrex/podgrab/model"
 	"github.com/akhilrex/podgrab/service"
@@ -402,23 +403,23 @@ func DeletePodcastItem(c *gin.Context) {
 func AddPodcast(c *gin.Context) {
 	var addPodcastData AddPodcastData
 	err := c.ShouldBindJSON(&addPodcastData)
-	if err == nil {
-		pod, err := service.AddPodcast(addPodcastData.Url)
-		if err == nil {
-			go service.RefreshEpisodes()
-			c.JSON(200, pod)
-		} else {
-			if v, ok := err.(*model.PodcastAlreadyExistsError); ok {
-				c.JSON(409, gin.H{"message": v.Error()})
-			} else {
-				log.Println(err.Error())
-				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			}
-		}
-	} else {
-		log.Println(err.Error())
+	if err != nil {
+		log.Error("Error adding podcast", "error", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
+
+	pod, err := service.AddPodcast(addPodcastData.Url)
+	if err != nil {
+		if v, ok := err.(*model.PodcastAlreadyExistsError); ok {
+			c.JSON(409, gin.H{"message": v.Error()})
+		} else {
+			log.Error("failed to add podcast", "error", err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		}
+	}
+	go service.RefreshEpisodes()
+	c.JSON(200, pod)
+
 }
 
 func GetAllTags(c *gin.Context) {
@@ -576,22 +577,21 @@ func DeleteTagById(c *gin.Context) {
 func AddTag(c *gin.Context) {
 	var addTagData AddTagData
 	err := c.ShouldBindJSON(&addTagData)
-	if err == nil {
-		tag, err := service.AddTag(addTagData.Label, addTagData.Description)
-		if err == nil {
-			c.JSON(200, tag)
-		} else {
-			if v, ok := err.(*model.TagAlreadyExistsError); ok {
-				c.JSON(409, gin.H{"message": v.Error()})
-			} else {
-				log.Println(err.Error())
-				c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			}
-		}
-	} else {
-		log.Println(err.Error())
+	if err != nil {
+		log.Error("Error adding Tag", "error", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
+	tag, err := service.AddTag(addTagData.Label, addTagData.Description)
+	if err != nil {
+		if v, ok := err.(*model.TagAlreadyExistsError); ok {
+			c.JSON(409, gin.H{"message": v.Error()})
+		} else {
+			log.Error("error adding tag", "error", err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		}
+	}
+	c.JSON(200, tag)
+
 }
 
 func AddTagToPodcast(c *gin.Context) {
